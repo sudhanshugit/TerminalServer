@@ -18,6 +18,9 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <netdb.h>
+
+#include <thread>
+#include "ClientCommunication.h"
 //#include "ip_check.h"
 #define MYPORT "3228"
 #define SIZE 10
@@ -78,23 +81,12 @@ int ServerAccessInit::initServer(){
 			perror ("not accepted");
 			continue;
 		}
-		int flag=0;
-		//pid[i]=fork();
-		if (1)
-		{
-					//if (i==1)
-			{
-				if(send(new_fd[i],"welcome to sudhanshu's chat server \nwait for other to connect\n",100,0)==-1)
-				perror("send");
-				//talk1(new_fd[i]);
-			}
-		/*	else if (i==2)
-			{
-		    	if(send(new_fd[i],"welcome to sudhanshu's chat server\n",40,0)==-1)
-		        perror("send");
-				talk1(new_fd[i];
-			}*/
-		}
+		//int flag=0;
+		ClientCommunication cc;// = new ClientCommunication();
+		cc.sd = new_fd[i];
+		thread th1(&ClientCommunication::Communicate,&cc);
+		th1.join();
+
 		i++;
 		printf("%d %d\n",i,pid[i]);
 		if (i>=SIZE) break;
