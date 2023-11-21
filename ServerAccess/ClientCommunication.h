@@ -16,7 +16,7 @@ public:
 	string TerminateConnection();
 	string ReceiveCommand();
 	string SendResult();
-	string RecvUserNameAndPassword();
+	//string RecvUserNameAndPassword();
 };
 
 #endif /* CLIENTCOMMUNICATION_H_ */
