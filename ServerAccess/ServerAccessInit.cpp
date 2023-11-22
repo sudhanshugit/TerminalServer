@@ -70,7 +70,8 @@ int ServerAccessInit::initServer(){
 	if (listen(sockfd,SIZE)<0)
 		printf ("the listening failed\n");
 	puts("waiting for incoming connections...\n");
-	unsigned int sin_size= sizeof(their_addr);
+	socklen_t sin_size = sizeof(their_addr);
+	//unsigned int sin_size= sizeof(their_addr);
 	int new_fd[SIZE];
 	int pid[SIZE];
 	int i=1;
@@ -82,11 +83,22 @@ int ServerAccessInit::initServer(){
 			continue;
 		}
 		//int flag=0;
+		struct sockaddr_in* pv4Addr = (struct sockaddr_in*)&their_addr;
+		struct in_addr ipAddr = pv4Addr->sin_addr;
+
+		printf("connection from  - %d.%d.%d.%d\n",
+				int((ipAddr.s_addr&0xFF)),
+				int((ipAddr.s_addr&0xFF00)>>8),
+				int((ipAddr.s_addr&0xFF0000)>>16),
+				int((ipAddr.s_addr&0xFF000000)>>24));
+
+		//printf("server got connection from %s\n",str);
+		//cout<<("server got connection from" )<<inet_ntoa(their_addr.sin_addr))
 		ClientCommunication cc;// = new ClientCommunication();
 		cc.sd = new_fd[i];
 		thread th1(&ClientCommunication::Communicate,&cc);
 		th1.join();
-
+		cout<<"thread create\n";
 		i++;
 		printf("%d %d\n",i,pid[i]);
 		if (i>=SIZE) break;
