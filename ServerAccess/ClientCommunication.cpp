@@ -21,6 +21,8 @@
 #include <netdb.h>
 #include <fstream>
 
+#define EOF "%^&EOF&^%"
+
 #include <thread>
 
 using namespace std;
@@ -59,7 +61,7 @@ void ClientCommunication :: Communicate(){
 			perror("recv 1");
 		cout<<"cmd from client : --- "<<cmd<<"\n";
 		//close connection
-		if(strcasecmp(cmd,"Exit")==0)
+		if(strcasecmp(cmd,"Exit")==0 || strlen(cmd) == 0)
 		{
 			cout<<"client exited\n";
 			break;
@@ -82,6 +84,7 @@ void ClientCommunication :: Communicate(){
 		//fin.seekg(0,ios::)
 		cout<<"start sending output file\n";
 		string line;
+		int cntLine =0;
 		while(getline(fin,line)){
 			//string line;
 
@@ -93,7 +96,9 @@ void ClientCommunication :: Communicate(){
 				break;
 			}
 			line = line + "\n";
-			if(send(sd,&line[0],line.length(),0)==-1)
+			int sendSuccess = send(sd,&line[0],line.length(),0);
+			cout<<"send success "<<sendSuccess<<"\n";
+			if(sendSuccess==-1)
 			{
 				perror("send file :");
 				//break;
@@ -101,7 +106,7 @@ void ClientCommunication :: Communicate(){
 		}
 		cout<<"end sending output file\n";
 		fin.close();
-		if(send(sd,"EOF",strlen("EOF"),0)==-1){
+		if(send(sd,EOF,strlen(EOF),0)==-1){
 			perror("send eof :");
 			//break;
 		}
