@@ -43,41 +43,79 @@ ClientCommunication::~ClientCommunication() {
 void ClientCommunication :: Communicate(){
 	//this->sd = sd;
 	string sndMsg = "welcome to sudhanshu's linux server \n";
+	if(send(sd,&sndMsg[0],sndMsg.length(),0)==-1)
+		perror("send welcome:");
+
+	//if(send(sd,&sndMsg[0],sndMsg.length(),0)==-1)
+		//perror("send welcome");
 
 	bool connect = true;
 
 	while(connect){
 
-
-
-		if(send(sd,&sndMsg[0],sndMsg.length(),0)==-1)
-					perror("send");
-		char* cmd;
+		char cmd[500];
+		memset(cmd,'\0',sizeof(char)*500);
 		if(recv(sd,cmd,500,0)==-1)
+			perror("recv 1");
+		cout<<"cmd from client : --- "<<cmd<<"\n";
+		//close connection
+		if(strcasecmp(cmd,"Exit")==0)
+		{
+			cout<<"client exited\n";
+			break;
+		}
+		char fileName[1000];
+		memset(fileName,'\0',sizeof(char)*1000);
+		if(recv(sd,fileName,1000,0)==-1)
 			perror("recv");
-		cout<<cmd<<"\n";
+		cout<<"fileName from client : --- "<<fileName<<"\n";
 
+		int exitStatus = system(cmd);
+		cout<<"system exit status : "<< exitStatus;
+		ifstream fin;
 
-		/*char* fileName;
-		if(recv(sd,cmd,500,0)==-1)
-			perror("recv");
-		cout<<fileName<<"\n";*/
-
-		/*ifstream fin;
+		fin.open(fileName);
+		//FILE *fp;
+		//int status;
+		//char cmdOutput[1000];
+		//fp = popen(cmd,"r");
+		//fin.seekg(0,ios::)
+		cout<<"start sending output file\n";
 		string line;
-		fin.open(fileName);*/
-		FILE *fp;
-		int status;
-		char cmdOutput[1000];
-		fp = popen(cmd,"r");
+		while(getline(fin,line)){
+			//string line;
 
-		while(fgets(cmdOutput,1000,fp)!=NULL){
+			cout<<line;
+			string fineof = fin.eof() ? "\ntrue\n":"\nfalse\n";
+				cout<<fineof;
+			if(fin.eof()==true) {
+				cout<<"break file read loop";
+				break;
+			}
+			line = line + "\n";
+			if(send(sd,&line[0],line.length(),0)==-1)
+			{
+				perror("send file :");
+				//break;
+			}
+		}
+		cout<<"end sending output file\n";
+		fin.close();
+		if(send(sd,"EOF",strlen("EOF"),0)==-1){
+			perror("send eof :");
+			//break;
+		}
+
+
+		//break;
+		/*while(fgets(cmdOutput,1000,fp)!=NULL){
 			//getline(cin,line);
+			cout<<cmdOutput<<"\n";
 			if(send(sd,cmdOutput,strlen(cmdOutput),0)==-1)
 				perror("send");
 			cout<<cmdOutput<<"\n";
 
-		}
+		}*/
 
 	}
 
